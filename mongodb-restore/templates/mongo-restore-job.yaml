@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "mongodb-restore.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "mongodb-restore.name" . }}
+    helm.sh/chart: {{ include "mongodb-restore.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  template:
+    metadata:
+      {{- with .Values.restore.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+      - name: mongodb-restore
+        image: {{ .Values.restore.image }}
+        args:
+        - /bin/bash
+        - -c
+        - echo "Downloading backup tar from S3"; aws s3 cp {{ .Values.restore.s3Path }} dump.tar.gz;
+          echo "Extracting data from tar";tar -xzvf dump.tar.gz;
+          echo "Loading data to mongo"; mongorestore --uri="{{ .Values.restore.restoreMongoConnectionString }}" /dump
+      restartPolicy: OnFailure
+

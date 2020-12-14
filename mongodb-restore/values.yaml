@@ -1,0 +1,9 @@
+# Default values for mongodb-restore.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+restore:
+  image: lgatica/mongodump-s3
+  s3Path: "<S3_LOCATION>"
+  restoreMongoConnectionString: "<MONGODB_CONNCETION_STRING>"
+  annotations:
+    iam.amazonaws.com/role: "<IAM_ROLE_WITH_READ_ACCESS_FROM_S3_BUCKET>"

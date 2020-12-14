@@ -1,0 +1,35 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "mongodb-replicaset-backup.fullname" . }}-backup
+  labels:
+      app: {{ template "mongodb-replicaset-backup.name" . }}
+      chart: {{ template "mongodb-replicaset-backup.chart" . }}
+      heritage: {{ .Release.Service }}
+      release: {{ .Release.Name }}
+spec:
+  schedule: "{{ .Values.backup.cron }}"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          {{- with .Values.backup.annotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          containers:
+          - name: mongodb-backup
+            image: {{ .Values.backup.image }}
+            args:
+            - /bin/bash
+            - -c
+            - echo 'Taking mongodb dump'; mongodump --host {{ template "mongodb-replicaset-backup.fullname" . }}-client;
+              FILE_NAME=`date +%F`-`date +%s`-dump.tar.gz;
+              echo 'compressing the file'; tar -zvcf ${FILE_NAME} dump;
+              echo 'copying to s3'; aws s3 cp ${FILE_NAME} {{ .Values.backup.s3Path }}${FILE_NAME};
+              echo 'removing the dump and file';
+              rm -rf dump ${FILE_NAME};
+            resources:
+{{ toYaml .Values.backup.resources | indent 14 }}
+          restartPolicy: OnFailure
