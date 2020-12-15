@@ -1,10 +1,11 @@
+{{- if .Values.backup.enabled -}}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ template "mongodb-replicaset-backup.fullname" . }}-backup
+  name: {{ template "mongodb-replicaset.fullname" . }}-backup
   labels:
-      app: {{ template "mongodb-replicaset-backup.name" . }}
-      chart: {{ template "mongodb-replicaset-backup.chart" . }}
+      app: {{ template "mongodb-replicaset.name" . }}
+      chart: {{ template "mongodb-replicaset.chart" . }}
       heritage: {{ .Release.Service }}
       release: {{ .Release.Name }}
 spec:
@@ -20,11 +21,11 @@ spec:
         spec:
           containers:
           - name: mongodb-backup
-            image: {{ .Values.backup.image }}
+            image: lgatica/mongodump-s3
             args:
             - /bin/bash
             - -c
-            - echo 'Taking mongodb dump'; mongodump --host {{ template "mongodb-replicaset-backup.fullname" . }}-client;
+            - echo 'Taking mongodb dump'; mongodump --host {{ template "mongodb-replicaset.fullname" . }}-client;
               FILE_NAME=`date +%F`-`date +%s`-dump.tar.gz;
               echo 'compressing the file'; tar -zvcf ${FILE_NAME} dump;
               echo 'copying to s3'; aws s3 cp ${FILE_NAME} {{ .Values.backup.s3Path }}${FILE_NAME};
@@ -33,3 +34,4 @@ spec:
             resources:
 {{ toYaml .Values.backup.resources | indent 14 }}
           restartPolicy: OnFailure
+{{- end }}

@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "mongodb-replicaset-backup.name" -}}
+{{- define "mongodb-replicaset.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "mongodb-replicaset-backup.fullname" -}}
+{{- define "mongodb-replicaset.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -27,30 +27,37 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "mongodb-replicaset-backup.chart" -}}
+{{- define "mongodb-replicaset.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
-Common labels
+Create the name for the admin secret.
 */}}
-{{- define "mongodb-replicaset-backup.labels" -}}
-app.kubernetes.io/name: {{ include "mongodb-replicaset-backup.name" . }}
-helm.sh/chart: {{ include "mongodb-replicaset-backup.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- define "mongodb-replicaset.adminSecret" -}}
+    {{- if .Values.auth.existingAdminSecret -}}
+        {{- .Values.auth.existingAdminSecret -}}
+    {{- else -}}
+        {{- template "mongodb-replicaset.fullname" . -}}-admin
+    {{- end -}}
 {{- end -}}
 
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "mongodb-replicaset-backup.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "mongodb-replicaset-backup.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+{{- define "mongodb-replicaset.metricsSecret" -}}
+    {{- if .Values.auth.existingMetricsSecret -}}
+        {{- .Values.auth.existingMetricsSecret -}}
+    {{- else -}}
+        {{- template "mongodb-replicaset.fullname" . -}}-metrics
+    {{- end -}}
 {{- end -}}
+
+
+{{/*
+Create the name for the key secret.
+*/}}
+{{- define "mongodb-replicaset.keySecret" -}}
+    {{- if .Values.auth.existingKeySecret -}}
+        {{- .Values.auth.existingKeySecret -}}
+    {{- else -}}
+        {{- template "mongodb-replicaset.fullname" . -}}-keyfile
+    {{- end -}}
 {{- end -}}
