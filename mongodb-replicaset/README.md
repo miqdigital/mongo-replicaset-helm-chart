@@ -143,6 +143,11 @@ To connect to the mongo shell with authentication enabled, use a command similar
 kubectl exec -it mongodb-replicaset-0 -- mongo mydb -u admin -p password --authenticationDatabase admin
 ```
 
+## Backup to S3
+
+By default this chart has backup disabled, if you want to have backup enabled then set `backup.enabled` to true while installing the chart, this would make sure that the regular job to run mongodump and upload to s3 is installed, you would also need to make sure that you have a S3 bucket created alongwith an IAM role with write access on the same. Once you have these update them in the `values.yaml` as well and re-install the chart for the changes to take affect.
+As an additional step you can enable cross-region replication in your S3 bucket to make sure that snapshots are stored across regions and are disaster proof.
+
 ## TLS support
 
 To enable full TLS encryption set `tls.enabled` to `true`. It is recommended to create your own CA by executing:
