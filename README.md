@@ -4,7 +4,7 @@ This helps you run a production ready highly-available MongoDB with capabilities
 2. Restore a snapshot (mongodb-restore)
 
 ## Chart Details
-This chart implements makes use of StackPointCloud stable trusted [helm charts](https://github.com/StackPointCloud/trusted-charts/tree/master/stable/mongodb-replicaset) to run mongodb and a [docker image](https://hub.docker.com/r/lgatica/mongodump-s3) which has AWS CLI and Mongo cli installed along with Kubernetes Batch [Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) and [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) API to regularly take backups and run a restore on demand.
+This chart extends StackPointCloud stable trusted [helm charts](https://github.com/StackPointCloud/trusted-charts/tree/master/stable/mongodb-replicaset) to run mongodb and a [docker image](https://hub.docker.com/r/lgatica/mongodump-s3) which has AWS CLI and Mongo cli installed along with Kubernetes Batch [Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) and [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) API to regularly take backups and run a restore on demand.
 
 To install any of the chart goto the root chart directory and run below command or open them to read more details around the same
 
